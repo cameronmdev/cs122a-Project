@@ -226,7 +226,20 @@ def main():
     if function == "import":
         import_data(sys.argv[2])
     elif function == "insertviewer":
-        insert_viewer(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13])
+        insert_viewer(
+            sys.argv[2],  # uid
+            sys.argv[3],  # email
+            sys.argv[4],  # nickname
+            sys.argv[5],  # street
+            sys.argv[6],  # city
+            sys.argv[7],  # state
+            sys.argv[8],  # zip
+            sys.argv[9],  # genres
+            sys.argv[10], # joined_date
+            sys.argv[11], # first
+            sys.argv[12], # last
+            sys.argv[13]  # subscription
+        )
     elif function == "addgenre":
         add_genre(
             sys.argv[2],  # uid
