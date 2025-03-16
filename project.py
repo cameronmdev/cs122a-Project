@@ -1,6 +1,7 @@
 import sys
 import mysql.connector
 from setup_db import initialize_db, populate_db
+import sys
 
 def open_db_connection():
     return mysql.connector.connect(
@@ -42,20 +43,23 @@ def insert_viewer(
 ):
     try:
         print(f"Inserting Viewer: uid={uid}, email={email}, nickname={nickname}, street={street}, city={city}, state={state}, zip={zip}, genres={genres}, joined_date={joined_date}, first={first}, last={last}, subscription={subscription}")
-       
-        db_connection = open_db_connection()
-        initialize_db(db_connection)
-
-        # Database logic goes here
-
-        db_connection.close()
-        return True
+        db = open_db_connection()
+        cursor = db.cursor()
+        
+        #Assumes user is already created, and existing in Users table
+        cursor.execute("INSERT INTO Viewers (uid, subscription, first_name, last_name) VALUES (%s,%s,%s,%s)",
+                       (uid, subscription, first, last))
+        db.commit()
+        print("Success")
     except Exception as e:
-        print(f"Error inserting viewer: {e}")
-        return False
+        print("Fail")
+        print(e)
+    cursor.close()
+    db.close()
+    
 
 
-def add_genre(uid, genre):
+'''def add_genre(uid, genre):
     try:
         print(f"Adding Genre: uid={uid}, genre={genre}")
        
@@ -68,7 +72,7 @@ def add_genre(uid, genre):
         return True
     except Exception as e:
         print(f"Error adding genre: {e}")
-        return False
+        return False'''
 
 def delete_viewer(uid):
     try:
