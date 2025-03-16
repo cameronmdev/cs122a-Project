@@ -1,6 +1,7 @@
 import sys
 import mysql.connector
 from setup_db import initialize_db, populate_db
+import sys
 
 def open_db_connection():
     return mysql.connector.connect(
@@ -42,20 +43,23 @@ def insert_viewer(
 ):
     try:
         print(f"Inserting Viewer: uid={uid}, email={email}, nickname={nickname}, street={street}, city={city}, state={state}, zip={zip}, genres={genres}, joined_date={joined_date}, first={first}, last={last}, subscription={subscription}")
-       
-        db_connection = open_db_connection()
-        initialize_db(db_connection)
-
-        # Database logic goes here
-
-        db_connection.close()
-        return True
+        db = open_db_connection()
+        cursor = db.cursor()
+        
+        #Assumes user is already created, and existing in Users table
+        cursor.execute("INSERT INTO Viewers (uid, subscription, first_name, last_name) VALUES (%s,%s,%s,%s)",
+                       (uid, subscription, first, last))
+        db.commit()
+        print("Success")
     except Exception as e:
-        print(f"Error inserting viewer: {e}")
-        return False
+        print("Fail")
+        print(e)
+    cursor.close()
+    db.close()
+    
 
 
-def add_genre(uid, genre):
+'''def add_genre(uid, genre):
     try:
         print(f"Adding Genre: uid={uid}, genre={genre}")
        
@@ -68,7 +72,7 @@ def add_genre(uid, genre):
         return True
     except Exception as e:
         print(f"Error adding genre: {e}")
-        return False
+        return False'''
 
 def delete_viewer(uid):
     try:
@@ -222,20 +226,7 @@ def main():
     if function == "import":
         import_data(sys.argv[2])
     elif function == "insertviewer":
-        insert_viewer(
-            sys.argv[2],  # uid
-            sys.argv[3],  # email
-            sys.argv[4],  # nickname
-            sys.argv[5],  # street
-            sys.argv[6],  # city
-            sys.argv[7],  # state
-            sys.argv[8],  # zip
-            sys.argv[9],  # genres
-            sys.argv[10], # joined_date
-            sys.argv[11], # first
-            sys.argv[12], # last
-            sys.argv[13]  # subscription
-        )
+        insert_viewer(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13])
     elif function == "addgenre":
         add_genre(
             sys.argv[2],  # uid
