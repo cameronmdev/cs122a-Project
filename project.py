@@ -58,20 +58,26 @@ def insert_viewer(
     db.close()
    
 
-
-'''def add_genre(uid, genre):
+def add_genre(uid, genre):
     try:
         print(f"Adding Genre: uid={uid}, genre={genre}")
        
-        db_connection = open_db_connection()
+        db = open_db_connection()
+        cursor = db.cursor()
 
-        # Database logic goes here
-
-        db_connection.close()
+        cursor.execute("SELECT genres FROM Users WHERE uid = %s", (uid,))
+        genres = cursor.fetchone()[0].strip()
+        
+        if genres != "":                    # only add semicolon if existing genres for User
+            genre = genres + ";" + genre
+        
+        cursor.execute("UPDATE Users set genres = %s WHERE uid = %s;", (genre, uid))
+        db.commit()
+        db.close()
         return True
     except Exception as e:
         print(f"Error adding genre: {e}")
-        return False'''
+        return False
 
 def delete_viewer(uid):
     try:
@@ -118,7 +124,7 @@ def insert_session(
         print(f"Inserting Session: sid={sid}, uid={uid}, rid={rid}, ep_num={ep_num}, initiate_at={initiate_at}, leave_at={leave_at}, quality={quality}, genres={genres}, device={device}")
        
         db_connection = open_db_connection()
-
+        
         # Database logic goes here
 
         db_connection.close()
