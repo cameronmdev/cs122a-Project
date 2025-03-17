@@ -45,18 +45,18 @@ def insert_viewer(
         print(f"Inserting Viewer: uid={uid}, email={email}, nickname={nickname}, street={street}, city={city}, state={state}, zip={zip}, genres={genres}, joined_date={joined_date}, first={first}, last={last}, subscription={subscription}")
         db = open_db_connection()
         cursor = db.cursor()
-        
+       
         #Assumes user is already created, and existing in Users table
         cursor.execute("INSERT INTO Viewers (uid, subscription, first_name, last_name) VALUES (%s,%s,%s,%s)",
                        (uid, subscription, first, last))
         db.commit()
-        print("Success")
+        print("Success") # good catch on fixing this.... do we need to print "Success" or return the vaule "Success"?
     except Exception as e:
         print("Fail")
         print(e)
     cursor.close()
     db.close()
-    
+   
 
 
 '''def add_genre(uid, genre):
@@ -64,7 +64,6 @@ def insert_viewer(
         print(f"Adding Genre: uid={uid}, genre={genre}")
        
         db_connection = open_db_connection()
-        initialize_db(db_connection)
 
         # Database logic goes here
 
@@ -95,7 +94,6 @@ def insert_movie(rid, website_url):
         print(f"Inserting movie: rid={rid}, website_url={website_url}")
        
         db_connection = open_db_connection()
-        initialize_db(db_connection)
 
         # Database logic goes here
 
@@ -120,7 +118,6 @@ def insert_session(
         print(f"Inserting Session: sid={sid}, uid={uid}, rid={rid}, ep_num={ep_num}, initiate_at={initiate_at}, leave_at={leave_at}, quality={quality}, genres={genres}, device={device}")
        
         db_connection = open_db_connection()
-        initialize_db(db_connection)
 
         # Database logic goes here
 
@@ -132,25 +129,22 @@ def insert_session(
 
 def update_release(rid, title):
     try:
-        print(f"Updating Release: rid={rid}, title={title}")
-       
-        db_connection = open_db_connection()
-        initialize_db(db_connection)
-
-        # Database logic goes here
-
-        db_connection.close()
-        return True
+        # print(f"Updating Release: rid={rid}, title={title}")    
+        db = open_db_connection()
+        cursor = db.cursor()
+        cursor.execute("UPDATE Releases set title = %s WHERE rid = %s;", (title, rid))
+        db.commit()
+        db.close()
+        print("Success")
     except Exception as e:
         print(f"Error updating release: {e}")
-        return False
+        print("Fail")
 
 def list_releases(uid):
     try:
         print(f"Listing releases reviewed by viewer: uid={uid}")
        
         db_connection = open_db_connection()
-        initialize_db(db_connection)
 
         # Database logic goes here
 
@@ -165,7 +159,6 @@ def popular_release(n):
         print(f"Listing popular releases: n={n}")
        
         db_connection = open_db_connection()
-        initialize_db(db_connection)
 
         # Database logic goes here
 
@@ -177,25 +170,45 @@ def popular_release(n):
 
 def release_title(sid):
     try:
-        print(f"Getting title for release: sid={sid}")
+        #print(f"Getting title for release: sid={sid}")
        
-        db_connection = open_db_connection()
-        initialize_db(db_connection)
+        db = open_db_connection()
+        cursor = db.cursor()
 
-        # Database logic goes here
+        cursor.execute("""
+            SELECT r.rid, r.title AS release_title, r.genre,
+                   v.title AS video_title, v.ep_num, v.length
+            FROM Sessions AS s
+            INNER JOIN Releases r ON r.rid = s.rid
+            INNER JOIN Videos v ON r.rid = v.rid
+            WHERE s.sid = %s
+            ORDER BY r.title ASC;
+            """, (sid,)
+        )
 
-        db_connection.close()
-        return True                 # todo: return table
+        results = cursor.fetchall()
+
+        # Print column names
+        headers = ["RID", "Release Title", "Genre", "Video Title", "Episode #", "Length"]
+        print(f"{headers[0]:<5} {headers[1]:<20} {headers[2]:<15} {headers[3]:<20} {headers[4]:<10} {headers[5]:<10}")
+        print("-" * 80)
+
+        # Print each row returned
+        for row in results:
+            print(f"{row[0]:<5} {row[1]:<20} {row[2]:<15} {row[3]:<20} {row[4]:<10} {row[5]:<10}")
+
     except Exception as e:
         print(f"Error getting release title: {e}")
-        return False
+
+    cursor.close()
+    db.close()
+
 
 def active_viewers(n, start, end):
     try:
         print(f"Listing active viewers: n={n}, start={start}, end={end}")
        
         db_connection = open_db_connection()
-        initialize_db(db_connection)
 
         # Database logic goes here
 
@@ -210,7 +223,6 @@ def videos_viewed(rid):
         print(f"Listing count of unique viewers for release: rid={rid}")
        
         db_connection = open_db_connection()
-        initialize_db(db_connection)
 
         # Database logic goes here
 
@@ -254,7 +266,7 @@ def main():
             sys.argv[2],  # rid
             sys.argv[3]   # website_url
         )
-    elif function == "insertsession": #[sid:int] [uid:int] [rid:int] [ep_num:int] [initiate_at:datetime] [leave_at:datetime] [quality:str] [device:str]
+    elif function == "insertsession":
         insert_session(
             sys.argv[2],  # sid
             sys.argv[3],  # uid
@@ -266,7 +278,7 @@ def main():
             sys.argv[9]   # device
         )
     elif function == "updaterelease":
-        update_releases(
+        update_release(
             sys.argv[2],  # rid
             sys.argv[3]   # title
         )
