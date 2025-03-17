@@ -84,10 +84,11 @@ def delete_viewer(uid):
         print(f"Deleting viewer: uid={uid}")
        
         db_connection = open_db_connection()
-        initialize_db(db_connection)
+        cursor = db_connection.cursor()
 
-        # Database logic goes here
-
+        cursor.execute("DELETE FROM Viewers WHERE uid = %s", (uid,))
+        
+        db_connection.commit()
         db_connection.close()
         return True
     except Exception as e:
