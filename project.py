@@ -139,8 +139,8 @@ def insert_session(
         print(f"Inserting Session: sid={sid}, uid={uid}, rid={rid}, ep_num={ep_num}, initiate_at={initiate_at}, leave_at={leave_at}, quality={quality}, device={device}")
        
         db_connection = open_db_connection()
-        
         # Database logic goes here
+        
 
         db_connection.close()
         return True
@@ -166,9 +166,20 @@ def list_releases(uid):
         print(f"Listing releases reviewed by viewer: uid={uid}")
        
         db = open_db_connection()
+        cursor = db.cursor()
+        cursor.execute("""SELECT r.rid, r.genre, r.title
+                       FROM Releases r
+                       INNER JOIN Reviews rv ON r.rid = rv.rid
+                       WHERE uid = %s
+                       ORDER BY r.release_date ASC""", (uid,))
 
+        results = cursor.fetchall()
+        #Might need to fix printing
+        for row in results:
+            print(f"{row[0]},{row[1]},{row[2]}")
+            
         db.close()
-        return True                 # todo: return table
+        return True             
     except Exception as e:
         print(f"Error listing releases: {e}")
         return False
@@ -177,11 +188,24 @@ def popular_release(n):
     try:
         print(f"Listing popular releases: n={n}")
        
-        db_connection = open_db_connection()
-
+        db = open_db_connection()
+        cursor = db.cursor()
         # Database logic goes here
+        cursor.execute('''SELECT R.rid, R.title, COUNT(rv.rid) AS reviewCount
+                       FROM Releases as R
+                       INNER JOIN  Reviews rv ON R.rid = rv.rid
+                       GROUP BY r.rid
+                       ORDER BY reviewCount DESC
+                       LIMIT %s''', (int(n),))
+        
+        results = cursor.fetchall()
+        
+        #Not realy sure how we're supposed to print, do we need title? (EdStem #415)
+        for row in results:
+            print(f"{row[0]},{row[1]},{row[2]}")
+        
 
-        db_connection.close()
+        db.close()
         return True                 # todo: return table
     except Exception as e:
         print(f"Error listing popular releases: {e}")
@@ -212,7 +236,7 @@ def release_title(sid):
         print(f"{headers[0]:<5} {headers[1]:<20} {headers[2]:<15} {headers[3]:<20} {headers[4]:<10} {headers[5]:<10}")
         print("-" * 80)
 
-        # Print each row returned
+        # Print each row returned - Did you forget commas between columns? (EdStem #415)
         for row in results:
             print(f"{row[0]:<5} {row[1]:<20} {row[2]:<15} {row[3]:<20} {row[4]:<10} {row[5]:<10}")
 
