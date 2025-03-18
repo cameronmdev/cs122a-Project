@@ -41,16 +41,27 @@ def insert_viewer(
     last,
     subscription
 ):
+    db = open_db_connection()
+    cursor = db.cursor()
+    #Tries to insert a user first
+    try:
+       pass 
+       cursor.execute("INSERT INTO USERS (uid,email,joined_date,nickname,street,city,state,zip,genres) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                      (uid, email, joined_date, nickname, street, city, state, zip, genres))
+       db.commit()
+    except Exception:
+        #Should only fail when there's a duplicate in the system
+       pass 
+   
+    #Then tries to insert a viewer
     try:
         print(f"Inserting Viewer: uid={uid}, email={email}, nickname={nickname}, street={street}, city={city}, state={state}, zip={zip}, genres={genres}, joined_date={joined_date}, first={first}, last={last}, subscription={subscription}")
-        db = open_db_connection()
-        cursor = db.cursor()
        
-        #Assumes user is already created, and existing in Users table
         cursor.execute("INSERT INTO Viewers (uid, subscription, first_name, last_name) VALUES (%s,%s,%s,%s)",
                        (uid, subscription, first, last))
         db.commit()
-        print("Success") # good catch on fixing this.... do we need to print "Success" or return the vaule "Success"?
+        print("Success") # good catch on fixing this.... do we need to print "Success" or return the vaule "Success"? 
+                        # EdStem #419 says we can return False/Fail, but dcoument says to print, so I'm a little confused too
     except Exception as e:
         print("Fail")
         print(e)
@@ -58,30 +69,37 @@ def insert_viewer(
     db.close()
    
 
-
-'''def add_genre(uid, genre):
+def add_genre(uid, genre):
     try:
         print(f"Adding Genre: uid={uid}, genre={genre}")
        
-        db_connection = open_db_connection()
+        db = open_db_connection()
+        cursor = db.cursor()
 
-        # Database logic goes here
-
-        db_connection.close()
+        cursor.execute("SELECT genres FROM Users WHERE uid = %s", (uid,))
+        genres = cursor.fetchone()[0].strip()
+        
+        if genres != "":                    # only add semicolon if existing genres for User
+            genre = genres + ";" + genre
+        
+        cursor.execute("UPDATE Users set genres = %s WHERE uid = %s;", (genre, uid))
+        db.commit()
+        db.close()
         return True
     except Exception as e:
         print(f"Error adding genre: {e}")
-        return False'''
+        return False
 
 def delete_viewer(uid):
     try:
         print(f"Deleting viewer: uid={uid}")
        
         db_connection = open_db_connection()
-        initialize_db(db_connection)
+        cursor = db_connection.cursor()
 
-        # Database logic goes here
-
+        cursor.execute("DELETE FROM Viewers WHERE uid = %s", (uid,))
+        
+        db_connection.commit()
         db_connection.close()
         return True
     except Exception as e:
@@ -118,7 +136,7 @@ def insert_session(
         print(f"Inserting Session: sid={sid}, uid={uid}, rid={rid}, ep_num={ep_num}, initiate_at={initiate_at}, leave_at={leave_at}, quality={quality}, genres={genres}, device={device}")
        
         db_connection = open_db_connection()
-
+        
         # Database logic goes here
 
         db_connection.close()
@@ -234,6 +252,12 @@ def videos_viewed(rid):
 
 def main():
     function = sys.argv[1].lower()
+    
+    #7) If the input is NULL, treat it as the None type in Python, not a string called “NULL”.
+    for i in range(len(sys.argv)):
+        if sys.argv[i] == "NULL":
+            sys.argv[i] = None
+            
 
     if function == "import":
         import_data(sys.argv[2])
