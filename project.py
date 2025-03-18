@@ -77,18 +77,19 @@ def add_genre(uid, genre):
         cursor = db.cursor()
 
         cursor.execute("SELECT genres FROM Users WHERE uid = %s", (uid,))
-        genres = cursor.fetchone()[0].strip()
+        genres = cursor.fetchone()
         
-        if genres != "":                    # only add semicolon if existing genres for User
+        if genres != None:                    # only add semicolon if existing genres for User
+            genres = genres[0].strip()
             genre = genres + ";" + genre
         
         cursor.execute("UPDATE Users set genres = %s WHERE uid = %s;", (genre, uid))
         db.commit()
         db.close()
-        return True
+        print("Success")
     except Exception as e:
         print(f"Error adding genre: {e}")
-        return False
+        print("Fail")
 
 def delete_viewer(uid):
     try:
@@ -101,10 +102,10 @@ def delete_viewer(uid):
         
         db_connection.commit()
         db_connection.close()
-        return True
+        print("Success")
     except Exception as e:
         print(f"Error deleting viewer: {e}")
-        return False
+        print("Fail")
 
 
 def insert_movie(rid, website_url):
@@ -112,14 +113,16 @@ def insert_movie(rid, website_url):
         print(f"Inserting movie: rid={rid}, website_url={website_url}")
        
         db_connection = open_db_connection()
-
-        # Database logic goes here
-
+        cursor = db_connection.cursor()
+        cursor.execute("INSERT INTO Movies (rid,website_url) VALUES (%s,%s)",
+                      (rid, website_url))
+        
+        db_connection.commit()
         db_connection.close()
-        return True
+        print("Success")
     except Exception as e:
         print(f"Error inserting movie: {e}")
-        return False
+        print("Fail")
 
 
 def insert_session(
@@ -133,7 +136,7 @@ def insert_session(
     device
 ):
     try:
-        print(f"Inserting Session: sid={sid}, uid={uid}, rid={rid}, ep_num={ep_num}, initiate_at={initiate_at}, leave_at={leave_at}, quality={quality}, genres={genres}, device={device}")
+        print(f"Inserting Session: sid={sid}, uid={uid}, rid={rid}, ep_num={ep_num}, initiate_at={initiate_at}, leave_at={leave_at}, quality={quality}, device={device}")
        
         db_connection = open_db_connection()
         
@@ -147,7 +150,7 @@ def insert_session(
 
 def update_release(rid, title):
     try:
-        # print(f"Updating Release: rid={rid}, title={title}")    
+        print(f"Updating Release: rid={rid}, title={title}")    
         db = open_db_connection()
         cursor = db.cursor()
         cursor.execute("UPDATE Releases set title = %s WHERE rid = %s;", (title, rid))
@@ -162,11 +165,9 @@ def list_releases(uid):
     try:
         print(f"Listing releases reviewed by viewer: uid={uid}")
        
-        db_connection = open_db_connection()
+        db = open_db_connection()
 
-        # Database logic goes here
-
-        db_connection.close()
+        db.close()
         return True                 # todo: return table
     except Exception as e:
         print(f"Error listing releases: {e}")
