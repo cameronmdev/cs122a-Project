@@ -3,6 +3,19 @@ import mysql.connector
 from setup_db import initialize_db, populate_db
 import sys
 
+###############################################################################################
+#
+# Note, these are
+#
+# 8. If the output is boolean, print “Success” or “Fail”.
+# 9. If the output is a result table, print each record in one line and separate columns with
+# ‘,’ - just like the format of the dataset file.
+
+# Todo: for all functions, should probalby put cursor.close() and db.close() calls after
+#  except block like in insert_viewer so we can be sure they are closed whether or not we
+#  have an exception.
+###############################################################################################
+
 def open_db_connection():
     return mysql.connector.connect(
         host="localhost",
@@ -16,15 +29,15 @@ def import_data(folder_name):
 # assumes the folder to read is in the same directory as project.py.
 # todo: determine if this assumption is correct. check ed discussion, ask TA, etc.
     try:
-        print(f"Importing folder: {folder_name}")
+        #print(f"Importing folder: {folder_name}")
         db_connection = open_db_connection()
         initialize_db(db_connection)
         populate_db(db_connection, folder_name)
         db_connection.close()
-        return True
+        print("Success")
     except Exception as e:
-        print(f"Error importing folder '{folder_name}': {e}")
-        return False
+        #print(f"Error importing folder '{folder_name}': {e}")
+        print("Fail")
 
 
 def insert_viewer(
@@ -45,26 +58,25 @@ def insert_viewer(
     cursor = db.cursor()
     #Tries to insert a user first
     try:
-       pass 
+       pass
        cursor.execute("INSERT INTO USERS (uid,email,joined_date,nickname,street,city,state,zip,genres) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                       (uid, email, joined_date, nickname, street, city, state, zip, genres))
        db.commit()
     except Exception:
         #Should only fail when there's a duplicate in the system
-       pass 
+       pass
    
     #Then tries to insert a viewer
     try:
-        print(f"Inserting Viewer: uid={uid}, email={email}, nickname={nickname}, street={street}, city={city}, state={state}, zip={zip}, genres={genres}, joined_date={joined_date}, first={first}, last={last}, subscription={subscription}")
+        #print(f"Inserting Viewer: uid={uid}, email={email}, nickname={nickname}, street={street}, city={city}, state={state}, zip={zip}, genres={genres}, joined_date={joined_date}, first={first}, last={last}, subscription={subscription}")
        
         cursor.execute("INSERT INTO Viewers (uid, subscription, first_name, last_name) VALUES (%s,%s,%s,%s)",
                        (uid, subscription, first, last))
         db.commit()
-        print("Success") # good catch on fixing this.... do we need to print "Success" or return the vaule "Success"? 
-                        # EdStem #419 says we can return False/Fail, but dcoument says to print, so I'm a little confused too
+        print("Success")
     except Exception as e:
         print("Fail")
-        print(e)
+        #print(e)
     cursor.close()
     db.close()
    
@@ -78,17 +90,18 @@ def add_genre(uid, genre):
 
         cursor.execute("SELECT genres FROM Users WHERE uid = %s", (uid,))
         genres = cursor.fetchone()
-        
+       
+        # TODO: Need to split genres and check if the new one exists and print fail (this was covered on ed discussion)
         if genres != None:                    # only add semicolon if existing genres for User
             genres = genres[0].strip()
             genre = genres + ";" + genre
-        
+       
         cursor.execute("UPDATE Users set genres = %s WHERE uid = %s;", (genre, uid))
         db.commit()
         db.close()
         print("Success")
     except Exception as e:
-        print(f"Error adding genre: {e}")
+        # print(f"Error adding genre: {e}")
         print("Fail")
 
 def delete_viewer(uid):
@@ -99,12 +112,12 @@ def delete_viewer(uid):
         cursor = db_connection.cursor()
 
         cursor.execute("DELETE FROM Viewers WHERE uid = %s", (uid,))
-        
+       
         db_connection.commit()
         db_connection.close()
         print("Success")
     except Exception as e:
-        print(f"Error deleting viewer: {e}")
+        #print(f"Error deleting viewer: {e}")
         print("Fail")
 
 
@@ -116,12 +129,12 @@ def insert_movie(rid, website_url):
         cursor = db_connection.cursor()
         cursor.execute("INSERT INTO Movies (rid,website_url) VALUES (%s,%s)",
                       (rid, website_url))
-        
+       
         db_connection.commit()
         db_connection.close()
         print("Success")
     except Exception as e:
-        print(f"Error inserting movie: {e}")
+        # print(f"Error inserting movie: {e}")
         print("Fail")
 
 
@@ -144,10 +157,10 @@ def insert_session(
                       (sid,uid,rid,ep_num,initiate_at,leave_at,quality,device))
         db_connection.commit()
         db_connection.close()
-        return True
+        print("Success")
     except Exception as e:
-        print(f"Error inserting session: {e}")
-        return False
+        #print(f"Error inserting session: {e}")
+        print("Fail")
 
 def update_release(rid, title):
     try:
@@ -159,9 +172,8 @@ def update_release(rid, title):
         db.close()
         print("Success")
     except Exception as e:
-        print(f"Error updating release: {e}")
+        #print(f"Error updating release: {e}")
         print("Fail")
-        
 
 def list_releases(uid):
     try:
@@ -176,15 +188,14 @@ def list_releases(uid):
                        ORDER BY r.release_date ASC""", (uid,))
 
         results = cursor.fetchall()
-        #Might need to fix printing
+        print("rid,genre,title")
         for row in results:
             print(f"{row[0]},{row[1]},{row[2]}")
-            
-        db.close()
-        return True             
+           
+        db.close()            
     except Exception as e:
-        print(f"Error listing releases: {e}")
-        return False
+        #print(f"Error listing releases: {e}")
+        print("Fail")
 
 def popular_release(n):
     try:
@@ -199,19 +210,19 @@ def popular_release(n):
                        GROUP BY r.rid
                        ORDER BY reviewCount DESC
                        LIMIT %s''', (int(n),))
-        
+       
         results = cursor.fetchall()
-        
+       
         #Not realy sure how we're supposed to print, do we need title? (EdStem #415)
+        #We should check assigment and ed discussion after we get all the core stuff working
+        # then fix these things for all functions where we have to print (CM)
+        print("rid, title, reviewCount")
         for row in results:
-            print(f"{row[0]},{row[1]},{row[2]}")
-        
-
+            print(f"{row[0]},{row[1]},{row[2]}")    
         db.close()
-        return True                 # todo: return table
     except Exception as e:
-        print(f"Error listing popular releases: {e}")
-        return False
+        #print(f"Error listing popular releases: {e}")
+        print("Fail")
 
 def release_title(sid):
     try:
@@ -230,21 +241,14 @@ def release_title(sid):
             ORDER BY r.title ASC;
             """, (sid,)
         )
-
         results = cursor.fetchall()
 
-        # Print column names
-        headers = ["RID", "Release Title", "Genre", "Video Title", "Episode #", "Length"]
-        print(f"{headers[0]:<5} {headers[1]:<20} {headers[2]:<15} {headers[3]:<20} {headers[4]:<10} {headers[5]:<10}")
-        print("-" * 80)
-
-        # Print each row returned - Did you forget commas between columns? (EdStem #415)
+        print("rid,release_title,genre,video_title,ep_num,length")
         for row in results:
-            print(f"{row[0]:<5} {row[1]:<20} {row[2]:<15} {row[3]:<20} {row[4]:<10} {row[5]:<10}")
-
+            print(f"{row[0]},{row[1]},{row[2]},{row[3]},{row[4]},{row[5]}")
     except Exception as e:
-        print(f"Error getting release title: {e}")
-
+        #print(f"Error getting release title: {e}")
+        print("Fail")
     cursor.close()
     db.close()
 
@@ -268,16 +272,12 @@ def active_viewers(n, start, end):
         results = cursor.fetchall()
         db.close()
 
-        # print results
-        print("UID | First Name | Last Name")
-        print("-" * 30)
-        for row in results:                            # todo, make sure format is correct and consistent with how we do elsewhere.
-            print(f"{row[0]} | {row[1]} | {row[2]}")
-
-        return True                 # todo: return table
+        print("UID,first name,last name")
+        for row in results:  
+            print(f"{row[0]},{row[1]},{row[2]}")
     except Exception as e:
-        print(f"Error listing active viewers: {e}")
-        return False
+        # print(f"Error listing active viewers: {e}")
+        print("Fail")
 
 def videos_viewed(rid):
     try:
@@ -285,22 +285,22 @@ def videos_viewed(rid):
        
         db_connection = open_db_connection()
 
-        # Database logic goes here
+        # Database logic goes here ############ TODO: Thought we were done, but STILL NEED TO DO THIS ONE ###########
 
         db_connection.close()
-        return True                 # todo: return table
+       
     except Exception as e:
-        print(f"Error listing viewer count: {e}")
-        return False
+        #print(f"Error listing viewer count: {e}")
+        print("Fail")
 
 def main():
     function = sys.argv[1].lower()
-    
+   
     #7) If the input is NULL, treat it as the None type in Python, not a string called “NULL”.
     for i in range(len(sys.argv)):
         if sys.argv[i] == "NULL":
             sys.argv[i] = None
-            
+           
 
     if function == "import":
         import_data(sys.argv[2])
