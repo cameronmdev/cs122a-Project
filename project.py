@@ -29,14 +29,14 @@ def import_data(folder_name):
 # assumes the folder to read is in the same directory as project.py.
 # todo: determine if this assumption is correct. check ed discussion, ask TA, etc.
     try:
-        print(f"Importing folder: {folder_name}")
+        #print(f"Importing folder: {folder_name}")
         db_connection = open_db_connection()
         initialize_db(db_connection)
         populate_db(db_connection, folder_name)
         db_connection.close()
         print("Success")
     except Exception as e:
-        print(f"Error importing folder '{folder_name}': {e}")
+        #print(f"Error importing folder '{folder_name}': {e}")
         print("Fail")
 
 
@@ -68,7 +68,7 @@ def insert_viewer(
    
     #Then tries to insert a viewer
     try:
-        print(f"Inserting Viewer: uid={uid}, email={email}, nickname={nickname}, street={street}, city={city}, state={state}, zip={zip}, genres={genres}, joined_date={joined_date}, first={first}, last={last}, subscription={subscription}")
+        #print(f"Inserting Viewer: uid={uid}, email={email}, nickname={nickname}, street={street}, city={city}, state={state}, zip={zip}, genres={genres}, joined_date={joined_date}, first={first}, last={last}, subscription={subscription}")
        
         cursor.execute("INSERT INTO Viewers (uid, subscription, first_name, last_name) VALUES (%s,%s,%s,%s)",
                        (uid, subscription, first, last))
@@ -109,7 +109,7 @@ def add_genre(uid, genre):
 
 def delete_viewer(uid):
     try:
-        print(f"Deleting viewer: uid={uid}")
+        #print(f"Deleting viewer: uid={uid}")
        
         db_connection = open_db_connection()
         cursor = db_connection.cursor()
@@ -120,13 +120,13 @@ def delete_viewer(uid):
         db_connection.close()
         print("Success")
     except Exception as e:
-        print(f"Error deleting viewer: {e}")
+        #print(f"Error deleting viewer: {e}")
         print("Fail")
 
 
 def insert_movie(rid, website_url):
     try:
-        print(f"Inserting movie: rid={rid}, website_url={website_url}")
+        #print(f"Inserting movie: rid={rid}, website_url={website_url}")
        
         db_connection = open_db_connection()
         cursor = db_connection.cursor()
@@ -137,7 +137,7 @@ def insert_movie(rid, website_url):
         db_connection.close()
         print("Success")
     except Exception as e:
-        print(f"Error inserting movie: {e}")
+        #print(f"Error inserting movie: {e}")
         print("Fail")
 
 
@@ -152,7 +152,7 @@ def insert_session(
     device
 ):
     try:
-        print(f"Inserting Session: sid={sid}, uid={uid}, rid={rid}, ep_num={ep_num}, initiate_at={initiate_at}, leave_at={leave_at}, quality={quality}, device={device}")
+        #print(f"Inserting Session: sid={sid}, uid={uid}, rid={rid}, ep_num={ep_num}, initiate_at={initiate_at}, leave_at={leave_at}, quality={quality}, device={device}")
        
         db_connection = open_db_connection()
         cursor = db_connection.cursor()
@@ -162,12 +162,12 @@ def insert_session(
         db_connection.close()
         print("Success")
     except Exception as e:
-        print(f"Error inserting session: {e}")
+        #print(f"Error inserting session: {e}")
         print("Fail")
 
 def update_release(rid, title):
     try:
-        print(f"Updating Release: rid={rid}, title={title}")    
+        #print(f"Updating Release: rid={rid}, title={title}")    
         db = open_db_connection()
         cursor = db.cursor()
         cursor.execute("UPDATE Releases set title = %s WHERE rid = %s;", (title, rid))
@@ -175,12 +175,12 @@ def update_release(rid, title):
         db.close()
         print("Success")
     except Exception as e:
-        print(f"Error updating release: {e}")
+        #print(f"Error updating release: {e}")
         print("Fail")
 
 def list_releases(uid):
     try:
-        print(f"Listing releases reviewed by viewer: uid={uid}")
+        #print(f"Listing releases reviewed by viewer: uid={uid}")
        
         db = open_db_connection()
         cursor = db.cursor()
@@ -191,18 +191,18 @@ def list_releases(uid):
                        ORDER BY r.release_date ASC""", (uid,))
 
         results = cursor.fetchall()
-        print("rid,genre,title")
+        # print("rid,genre,title") --- EDIT: don't need to print heading
         for row in results:
             print(f"{row[0]},{row[1]},{row[2]}")
            
         db.close()            
     except Exception as e:
-        print(f"Error listing releases: {e}")
+        #print(f"Error listing releases: {e}")
         print("Fail")
 
 def popular_release(n):
     try:
-        print(f"Listing popular releases: n={n}")
+        #print(f"Listing popular releases: n={n}")
        
         db = open_db_connection()
         cursor = db.cursor()
@@ -219,17 +219,17 @@ def popular_release(n):
         #Not realy sure how we're supposed to print, do we need title? (EdStem #415)
         #We should check assigment and ed discussion after we get all the core stuff working
         # then fix these things for all functions where we have to print (CM)
-        print("rid, title, reviewCount")
+        #print("rid, title, reviewCount")
         for row in results:
             print(f"{row[0]},{row[1]},{row[2]}")    
         db.close()
     except Exception as e:
-        print(f"Error listing popular releases: {e}")
+        #print(f"Error listing popular releases: {e}")
         print("Fail")
 
 def release_title(sid):
     try:
-        print(f"Getting title for release: sid={sid}")
+        #print(f"Getting title for release: sid={sid}")
        
         db = open_db_connection()
         cursor = db.cursor()
@@ -246,11 +246,11 @@ def release_title(sid):
         )
         results = cursor.fetchall()
 
-        print("rid,release_title,genre,video_title,ep_num,length")
+        #print("rid,release_title,genre,video_title,ep_num,length")
         for row in results:
             print(f"{row[0]},{row[1]},{row[2]},{row[3]},{row[4]},{row[5]}")
     except Exception as e:
-        print(f"Error getting release title: {e}")
+       # print(f"Error getting release title: {e}")
         print("Fail")
     cursor.close()
     db.close()
@@ -258,7 +258,7 @@ def release_title(sid):
 
 def active_viewers(n, start, end):
     try:
-        print(f"Listing active viewers: n={n}, start={start}, end={end}")
+        #print(f"Listing active viewers: n={n}, start={start}, end={end}")
        
         db = open_db_connection()
         cursor = db.cursor()
@@ -275,16 +275,16 @@ def active_viewers(n, start, end):
         results = cursor.fetchall()
         db.close()
 
-        print("UID,first name,last name")
+        #print("UID,first name,last name")
         for row in results:  
             print(f"{row[0]},{row[1]},{row[2]}")
     except Exception as e:
-        print(f"Error listing active viewers: {e}")
+        #print(f"Error listing active viewers: {e}")
         print("Fail")
 
 def videos_viewed(rid):
     try:
-        print(f"Listing count of unique viewers for release: rid={rid}")
+       # print(f"Listing count of unique viewers for release: rid={rid}")
        
         db_connection = open_db_connection()
 
@@ -293,7 +293,7 @@ def videos_viewed(rid):
         db_connection.close()
        
     except Exception as e:
-        print(f"Error listing viewer count: {e}")
+        #print(f"Error listing viewer count: {e}")
         print("Fail")
 
 def main():
