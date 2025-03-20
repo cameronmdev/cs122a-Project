@@ -79,7 +79,7 @@ def insert_viewer(
         #print(e)
     cursor.close()
     db.close()
-   
+
 
 def add_genre(uid, genre):
     try:
@@ -188,7 +188,7 @@ def list_releases(uid):
                        FROM Releases r
                        INNER JOIN Reviews rv ON r.rid = rv.rid
                        WHERE uid = %s
-                       ORDER BY r.release_date ASC""", (uid,))
+                       ORDER BY r.title date ASC""", (uid,))
 
         results = cursor.fetchall()
         # print("rid,genre,title") --- EDIT: don't need to print heading
@@ -198,7 +198,7 @@ def list_releases(uid):
         db.close()            
     except Exception as e:
         #print(f"Error listing releases: {e}")
-        print("Fail")
+        pass            # shouldn't print fail on error
 
 def popular_release(n):
     try:
