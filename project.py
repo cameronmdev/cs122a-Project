@@ -29,14 +29,14 @@ def import_data(folder_name):
 # assumes the folder to read is in the same directory as project.py.
 # todo: determine if this assumption is correct. check ed discussion, ask TA, etc.
     try:
-        #print(f"Importing folder: {folder_name}")
+        print(f"Importing folder: {folder_name}")
         db_connection = open_db_connection()
         initialize_db(db_connection)
         populate_db(db_connection, folder_name)
         db_connection.close()
         print("Success")
     except Exception as e:
-        #print(f"Error importing folder '{folder_name}': {e}")
+        print(f"Error importing folder '{folder_name}': {e}")
         print("Fail")
 
 
@@ -68,7 +68,7 @@ def insert_viewer(
    
     #Then tries to insert a viewer
     try:
-        #print(f"Inserting Viewer: uid={uid}, email={email}, nickname={nickname}, street={street}, city={city}, state={state}, zip={zip}, genres={genres}, joined_date={joined_date}, first={first}, last={last}, subscription={subscription}")
+        print(f"Inserting Viewer: uid={uid}, email={email}, nickname={nickname}, street={street}, city={city}, state={state}, zip={zip}, genres={genres}, joined_date={joined_date}, first={first}, last={last}, subscription={subscription}")
        
         cursor.execute("INSERT INTO Viewers (uid, subscription, first_name, last_name) VALUES (%s,%s,%s,%s)",
                        (uid, subscription, first, last))
@@ -83,7 +83,7 @@ def insert_viewer(
 
 def add_genre(uid, genre):
     try:
-        print(f"Adding Genre: uid={uid}, genre={genre}")
+        #print(f"Adding Genre: uid={uid}, genre={genre}")
        
         db = open_db_connection()
         cursor = db.cursor()
@@ -91,9 +91,12 @@ def add_genre(uid, genre):
         cursor.execute("SELECT genres FROM Users WHERE uid = %s", (uid,))
         genres = cursor.fetchone()
        
-        # TODO: Need to split genres and check if the new one exists and print fail (this was covered on ed discussion)
         if genres != None:                    # only add semicolon if existing genres for User
             genres = genres[0].strip()
+            
+            if genre in genres.split(";"):
+                raise ValueError("Genre already exists in User record")
+            
             genre = genres + ";" + genre
        
         cursor.execute("UPDATE Users set genres = %s WHERE uid = %s;", (genre, uid))
@@ -101,7 +104,7 @@ def add_genre(uid, genre):
         db.close()
         print("Success")
     except Exception as e:
-        # print(f"Error adding genre: {e}")
+        #print(f"Error adding genre: {e}")
         print("Fail")
 
 def delete_viewer(uid):
@@ -117,7 +120,7 @@ def delete_viewer(uid):
         db_connection.close()
         print("Success")
     except Exception as e:
-        #print(f"Error deleting viewer: {e}")
+        print(f"Error deleting viewer: {e}")
         print("Fail")
 
 
@@ -134,7 +137,7 @@ def insert_movie(rid, website_url):
         db_connection.close()
         print("Success")
     except Exception as e:
-        # print(f"Error inserting movie: {e}")
+        print(f"Error inserting movie: {e}")
         print("Fail")
 
 
@@ -159,7 +162,7 @@ def insert_session(
         db_connection.close()
         print("Success")
     except Exception as e:
-        #print(f"Error inserting session: {e}")
+        print(f"Error inserting session: {e}")
         print("Fail")
 
 def update_release(rid, title):
@@ -172,7 +175,7 @@ def update_release(rid, title):
         db.close()
         print("Success")
     except Exception as e:
-        #print(f"Error updating release: {e}")
+        print(f"Error updating release: {e}")
         print("Fail")
 
 def list_releases(uid):
@@ -194,7 +197,7 @@ def list_releases(uid):
            
         db.close()            
     except Exception as e:
-        #print(f"Error listing releases: {e}")
+        print(f"Error listing releases: {e}")
         print("Fail")
 
 def popular_release(n):
@@ -221,12 +224,12 @@ def popular_release(n):
             print(f"{row[0]},{row[1]},{row[2]}")    
         db.close()
     except Exception as e:
-        #print(f"Error listing popular releases: {e}")
+        print(f"Error listing popular releases: {e}")
         print("Fail")
 
 def release_title(sid):
     try:
-        #print(f"Getting title for release: sid={sid}")
+        print(f"Getting title for release: sid={sid}")
        
         db = open_db_connection()
         cursor = db.cursor()
@@ -247,7 +250,7 @@ def release_title(sid):
         for row in results:
             print(f"{row[0]},{row[1]},{row[2]},{row[3]},{row[4]},{row[5]}")
     except Exception as e:
-        #print(f"Error getting release title: {e}")
+        print(f"Error getting release title: {e}")
         print("Fail")
     cursor.close()
     db.close()
@@ -276,7 +279,7 @@ def active_viewers(n, start, end):
         for row in results:  
             print(f"{row[0]},{row[1]},{row[2]}")
     except Exception as e:
-        # print(f"Error listing active viewers: {e}")
+        print(f"Error listing active viewers: {e}")
         print("Fail")
 
 def videos_viewed(rid):
@@ -290,7 +293,7 @@ def videos_viewed(rid):
         db_connection.close()
        
     except Exception as e:
-        #print(f"Error listing viewer count: {e}")
+        print(f"Error listing viewer count: {e}")
         print("Fail")
 
 def main():
