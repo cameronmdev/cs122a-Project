@@ -161,19 +161,7 @@ def update_release(rid, title):
     except Exception as e:
         print(f"Error updating release: {e}")
         print("Fail")
-
-def update_release(rid, title):
-    try:
-        print(f"Updating Release: rid={rid}, title={title}")    
-        db = open_db_connection()
-        cursor = db.cursor()
-        cursor.execute("UPDATE Releases set title = %s WHERE rid = %s;", (title, rid))
-        db.commit()
-        db.close()
-        print("Success")
-    except Exception as e:
-        print(f"Error updating release: {e}")
-        print("Fail")
+        
 
 def list_releases(uid):
     try:
