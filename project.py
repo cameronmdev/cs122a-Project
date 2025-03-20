@@ -139,14 +139,28 @@ def insert_session(
         print(f"Inserting Session: sid={sid}, uid={uid}, rid={rid}, ep_num={ep_num}, initiate_at={initiate_at}, leave_at={leave_at}, quality={quality}, device={device}")
        
         db_connection = open_db_connection()
-        # Database logic goes here
-        
-
+        cursor = db_connection.cursor()
+        cursor.execute("INSERT INTO Sessions (sid,uid,rid,ep_num,initiate_at,leave_at,quality,device)VALUES (%s,%s,%s,%s,%s,%s,%s,%s);",
+                      (sid,uid,rid,ep_num,initiate_at,leave_at,quality,device))
+        db_connection.commit()
         db_connection.close()
         return True
     except Exception as e:
         print(f"Error inserting session: {e}")
         return False
+
+def update_release(rid, title):
+    try:
+        print(f"Updating Release: rid={rid}, title={title}")    
+        db = open_db_connection()
+        cursor = db.cursor()
+        cursor.execute("UPDATE Releases set title = %s WHERE rid = %s;", (title, rid))
+        db.commit()
+        db.close()
+        print("Success")
+    except Exception as e:
+        print(f"Error updating release: {e}")
+        print("Fail")
 
 def update_release(rid, title):
     try:
