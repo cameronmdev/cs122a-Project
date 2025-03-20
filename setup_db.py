@@ -1,4 +1,5 @@
 import mysql.connector
+import csv
 
 def create_table_users(cursor):
     cursor.execute("""
@@ -146,19 +147,158 @@ def initialize_db(db_connection):
     db_connection.commit()
     cursor.close()
 
+
+def populate_users(db_connection, folder_name):
+    cursor = db_connection.cursor()
+    cursor.execute("USE cs122a;")
+
+    with open(f"{folder_name}/users.csv", mode='r') as f:
+        file = csv.reader(f)
+
+        next(file)
+        for row in file:
+            cursor.execute("INSERT INTO USERS (uid,email,joined_date,nickname,street,city,state,zip,genres) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                      (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
+
+    db_connection.commit()
+    cursor.close()
+
+
+def populate_producers(db_connection, folder_name):
+    cursor = db_connection.cursor()
+    cursor.execute("USE cs122a;")
+
+    with open(f"{folder_name}/producers.csv", mode='r') as f:
+        file = csv.reader(f)
+
+        next(file)
+        for row in file:
+            cursor.execute("INSERT INTO Producers (uid,bio,company) VALUES (%s,%s,%s)", (row[0], row[1], row[2]))
+
+    db_connection.commit()
+    cursor.close()
+
+
+def populate_viewers(db_connection, folder_name):
+    cursor = db_connection.cursor()
+    cursor.execute("USE cs122a;")
+    with open(f"{folder_name}/viewers.csv", mode='r') as f:
+        file = csv.reader(f)
+
+        next(file)
+        for row in file:
+            cursor.execute("INSERT INTO Viewers (uid,subscription,first_name,last_name) VALUES (%s,%s,%s,%s)",
+                      (row[0], row[1], row[2], row[3]))
+
+    db_connection.commit()
+    cursor.close()
+
+
+def populate_releases(db_connection, folder_name):
+    cursor = db_connection.cursor()
+    cursor.execute("USE cs122a;")
+
+    with open(f"{folder_name}/releases.csv", mode='r') as f:
+        file = csv.reader(f)
+
+        next(file)
+        for row in file:
+            cursor.execute("INSERT INTO Releases (rid,producer_uid,title,genre,release_date) VALUES (%s,%s,%s,%s,%s)",
+                      (row[0], row[1], row[2], row[3], row[4]))
+
+    db_connection.commit()
+    cursor.close()
+
+
+def populate_movies(db_connection, folder_name):
+    cursor = db_connection.cursor()
+    cursor.execute("USE cs122a;")
+
+    with open(f"{folder_name}/movies.csv", mode='r') as f:
+        file = csv.reader(f)
+
+        next(file)
+        for row in file:
+            cursor.execute("INSERT INTO Movies (rid,website_url) VALUES (%s,%s)", (row[0], row[1]))
+
+    db_connection.commit()
+    cursor.close()
+
+
+def populate_series(db_connection, folder_name):
+    cursor = db_connection.cursor()
+    cursor.execute("USE cs122a;")
+    with open(f"{folder_name}/series.csv", mode='r') as f:
+        file = csv.reader(f)
+
+        next(file)
+        for row in file:
+            cursor.execute("INSERT INTO Series (rid,introduction) VALUES (%s,%s)",
+                      (row[0], row[1]))
+
+    db_connection.commit()
+    cursor.close()
+
+
+def populate_videos(db_connection, folder_name):
+    cursor = db_connection.cursor()
+    cursor.execute("USE cs122a;")
+    with open(f"{folder_name}/videos.csv", mode='r') as f:
+        file = csv.reader(f)
+
+        next(file)
+        for row in file:
+            cursor.execute("INSERT INTO Videos (rid,ep_num,title,length) VALUES (%s,%s,%s,%s)", 
+                           (row[0], row[1], row[2], row[3]))
+
+    db_connection.commit()
+    cursor.close()
+
+
+def populate_sessions(db_connection, folder_name):
+    cursor = db_connection.cursor()
+    cursor.execute("USE cs122a;")
+    with open(f"{folder_name}/sessions.csv", mode='r') as f:
+        file = csv.reader(f)
+
+        next(file)
+        for row in file:
+            cursor.execute("INSERT INTO Sessions (sid,uid,rid,ep_num,initiate_at,leave_at,quality,device) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)", 
+                           (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
+
+    db_connection.commit()
+    cursor.close()
+
+
+def populate_reviews(db_connection, folder_name):
+    cursor = db_connection.cursor()
+    cursor.execute("USE cs122a;")
+    with open(f"{folder_name}/reviews.csv", mode='r') as f:
+        file = csv.reader(f)
+
+        next(file)
+        for row in file:
+            cursor.execute("INSERT INTO Reviews (rvid,uid,rid,rating,body,posted_at) VALUES (%s,%s,%s,%s,%s,%s)", 
+                           (row[0], row[1], row[2], row[3], row[4], row[5]))
+
+    db_connection.commit()
+    cursor.close()
+
+
 def populate_db(db_connection, folder_name):
     cursor = db_connection.cursor()
     cursor.execute("USE cs122a;")
 
-    cursor.execute(f"LOAD DATA LOCAL INFILE '{folder_name}/users.csv' INTO TABLE Users FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\n' IGNORE 1 ROWS;")
-    cursor.execute(f"LOAD DATA LOCAL INFILE '{folder_name}/producers.csv' INTO TABLE Producers FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\n' IGNORE 1 ROWS;")
-    cursor.execute(f"LOAD DATA LOCAL INFILE '{folder_name}/viewers.csv' INTO TABLE Viewers FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\n' IGNORE 1 ROWS;")
-    cursor.execute(f"LOAD DATA LOCAL INFILE '{folder_name}/releases.csv' INTO TABLE Releases FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\n' IGNORE 1 ROWS;")
-    cursor.execute(f"LOAD DATA LOCAL INFILE '{folder_name}/movies.csv' INTO TABLE Movies FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\n' IGNORE 1 ROWS;")
-    cursor.execute(f"LOAD DATA LOCAL INFILE '{folder_name}/series.csv' INTO TABLE Series FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\n' IGNORE 1 ROWS;")
-    cursor.execute(f"LOAD DATA LOCAL INFILE '{folder_name}/videos.csv' INTO TABLE Videos FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\n' IGNORE 1 ROWS;")
-    cursor.execute(f"LOAD DATA LOCAL INFILE '{folder_name}/sessions.csv' INTO TABLE Sessions FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\n' IGNORE 1 ROWS;")
-    cursor.execute(f"LOAD DATA LOCAL INFILE '{folder_name}/reviews.csv' INTO TABLE Reviews FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\n' IGNORE 1 ROWS;")
+    populate_users(db_connection, folder_name)
+    populate_producers(db_connection, folder_name)
+    populate_viewers(db_connection, folder_name)
+    populate_releases(db_connection, folder_name)
+    populate_movies(db_connection, folder_name)
+    populate_series(db_connection, folder_name)
+    populate_videos(db_connection, folder_name)
+    populate_sessions(db_connection, folder_name)
+    populate_reviews(db_connection, folder_name)
+
 
     db_connection.commit()
     cursor.close()
