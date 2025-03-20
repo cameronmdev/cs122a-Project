@@ -209,9 +209,9 @@ def popular_release(n):
         # Database logic goes here
         cursor.execute('''SELECT R.rid, R.title, COUNT(rv.rid) AS reviewCount
                        FROM Releases as R
-                       INNER JOIN  Reviews rv ON R.rid = rv.rid
-                       GROUP BY r.rid
-                       ORDER BY reviewCount DESC
+                       INNER JOIN Reviews rv ON R.rid = rv.rid
+                       GROUP BY R.rid
+                       ORDER BY reviewCount DESC, R.rid DESC
                        LIMIT %s''', (int(n),))
        
         results = cursor.fetchall()
