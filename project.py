@@ -253,11 +253,27 @@ def active_viewers(n, start, end):
     try:
         print(f"Listing active viewers: n={n}, start={start}, end={end}")
        
-        db_connection = open_db_connection()
+        db = open_db_connection()
+        cursor = db.cursor()
+        query = """
+            SELECT v.uid AS UID, v.first_name AS First_Name, v.last_name AS Last_Name
+            FROM Viewers AS v
+            JOIN Sessions AS s ON v.uid = s.uid
+            WHERE s.initiate_at BETWEEN %s AND %s
+            GROUP BY v.uid
+            HAVING COUNT(s.sid) >= %s
+            ORDER BY v.uid ASC;
+        """
+        cursor.execute(query, (start, end, n))
+        results = cursor.fetchall()
+        db.close()
 
-        # Database logic goes here
+        # print results
+        print("UID | First Name | Last Name")
+        print("-" * 30)
+        for row in results:                            # todo, make sure format is correct and consistent with how we do elsewhere.
+            print(f"{row[0]} | {row[1]} | {row[2]}")
 
-        db_connection.close()
         return True                 # todo: return table
     except Exception as e:
         print(f"Error listing active viewers: {e}")
