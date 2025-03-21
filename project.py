@@ -59,7 +59,7 @@ def insert_viewer(
     #Tries to insert a user first
     try:
         #pass
-        cursor.execute("INSERT INTO USERS (uid,email,joined_date,nickname,street,city,state,zip,genres) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+        cursor.execute("INSERT INTO Users (uid,email,joined_date,nickname,street,city,state,zip,genres) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                       (uid, email, joined_date, nickname, street, city, state, zip, genres))
         db.commit()
         #except Exception:
