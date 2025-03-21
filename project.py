@@ -58,16 +58,16 @@ def insert_viewer(
     cursor = db.cursor()
     #Tries to insert a user first
     try:
-       pass
-       cursor.execute("INSERT INTO USERS (uid,email,joined_date,nickname,street,city,state,zip,genres) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+        #pass
+        cursor.execute("INSERT INTO USERS (uid,email,joined_date,nickname,street,city,state,zip,genres) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                       (uid, email, joined_date, nickname, street, city, state, zip, genres))
-       db.commit()
-    except Exception:
+        db.commit()
+        #except Exception:
         #Should only fail when there's a duplicate in the system
-       pass
+       #pass
    
-    #Then tries to insert a viewer
-    try:
+        #Then tries to insert a viewer
+        #try:
         #print(f"Inserting Viewer: uid={uid}, email={email}, nickname={nickname}, street={street}, city={city}, state={state}, zip={zip}, genres={genres}, joined_date={joined_date}, first={first}, last={last}, subscription={subscription}")
        
         cursor.execute("INSERT INTO Viewers (uid, subscription, first_name, last_name) VALUES (%s,%s,%s,%s)",
@@ -285,17 +285,33 @@ def active_viewers(n, start, end):
 
 def videos_viewed(rid):
     try:
-       # print(f"Listing count of unique viewers for release: rid={rid}")
+        db = open_db_connection()
+        cursor = db.cursor()
        
-        db_connection = open_db_connection()
+        query = """
+            SELECT
+                v.rid AS RID,
+                v.ep_num AS ep_num,
+                v.title AS title,
+                v.length AS length,
+                COUNT(DISTINCT s.uid) AS COUNT
+            FROM Videos AS v
+            LEFT JOIN Sessions AS s ON v.rid = s.rid
+            WHERE v.rid = %s
+            GROUP BY v.rid, v.ep_num, v.title, v.length
+            ORDER BY v.rid DESC, v.ep_num ASC;
+        """   
+        cursor.execute(query, (rid,))
+        results = cursor.fetchall()
 
-        # Database logic goes here ############ TODO: Thought we were done, but STILL NEED TO DO THIS ONE ###########
+        for row in results:
+            print(f"{row[0]},{row[1]},{row[2]},{row[3]},{row[4]}")
 
-        db_connection.close()
-       
     except Exception as e:
-        #print(f"Error listing viewer count: {e}")
         print("Fail")
+    finally:
+        cursor.close()
+        db.close()
 
 def main():
     function = sys.argv[1].lower()
