@@ -157,7 +157,7 @@ def populate_users(db_connection, folder_name):
 
         next(file)
         for row in file:
-            cursor.execute("INSERT INTO USERS (uid,email,joined_date,nickname,street,city,state,zip,genres) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+            cursor.execute("INSERT INTO Users (uid,email,joined_date,nickname,street,city,state,zip,genres) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                       (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
 
     db_connection.commit()
